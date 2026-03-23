@@ -12,16 +12,25 @@ const FeedbackView: React.FC = () => {
     e.preventDefault();
     setSending(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/feedback`, {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
         body: JSON.stringify({ 
-          user_email: email, 
-          message: `[${category}] ${message}` 
+          access_key: "61403297-5865-463a-930f-e6bd6a49cf3c",
+          name: "Researcher AI User",
+          email: email, 
+          message: message,
+          subject: `[${category}] Researcher AI Feedback`,
+          from_name: "Researcher AI PRO Portal"
         })
       });
 
-      if (response.ok) {
+      const result = await response.json();
+
+      if (response.ok && result.success) {
         setStatus('success');
         setMessage('');
         setEmail('');

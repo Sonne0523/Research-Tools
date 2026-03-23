@@ -8,19 +8,28 @@ const FeedbackButton: React.FC = () => {
     const [sending, setSending] = useState(false);
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSending(true);
         try {
-            console.log(`Submitting feedback to: ${API_BASE_URL}/api/feedback`);
-            const response = await fetch(`${API_BASE_URL}/api/feedback`, {
+            console.log("Submitting feedback via Web3Forms...");
+            const response = await fetch("https://api.web3forms.com/submit", {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_email: email, message: `[Quick] ${message}` })
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    access_key: "61403297-5865-463a-930f-e6bd6a49cf3c",
+                    name: "Anonymous Scholar",
+                    email: email,
+                    message: message,
+                    subject: "Quick Feedback - Researcher AI",
+                    from_name: "Researcher AI System"
+                })
             });
 
-            if (response.ok) {
-                console.log("Feedback submitted successfully.");
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                console.log("Feedback submitted successfully via Web3Forms.");
                 setStatus('success');
                 setTimeout(() => {
                     setIsOpen(false);
@@ -29,17 +38,15 @@ const FeedbackButton: React.FC = () => {
                     setEmail('');
                 }, 2000);
             } else {
-                const errorData = await response.json().catch(() => ({}));
-                console.error("Feedback submission failed:", response.status, errorData);
+                console.error("Web3Forms submission failed:", result);
                 setStatus('error');
             }
         } catch (error) {
-            console.error("Feedback submission error:", error);
+            console.error("Web3Forms submission error:", error);
             setStatus('error');
         } finally {
             setSending(false);
         }
-    };
 
     if (!isOpen) {
         return (
