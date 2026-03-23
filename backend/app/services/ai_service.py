@@ -47,7 +47,9 @@ async def summarize_text(text: str):
     * Use professional, academic tone.
     * Prioritize scannability with bold text and bullet points.
     """ 
-    return await router.route_task("summarize", prompt, f"Research paper content:\n\n{text}")
+    # Cap text to first 100k chars for memory safety on Free Tier
+    safe_text = text[:100000]
+    return await router.route_task("summarize", prompt, f"Research paper content:\n\n{safe_text}")
 
 async def synthesize_papers(papers: list[dict]):
     """
@@ -125,7 +127,9 @@ async def analyze_journal_paper(text: str):
     * Prioritize scannability with bold text and bullet points.
     """
     
-    return await router.route_task("analyze", prompt, text)
+    # Cap text to first 100k chars for memory safety on Free Tier
+    safe_text = text[:100000]
+    return await router.route_task("analyze", prompt, safe_text)
 
 async def research_proposal_guide(topic: str):
     """Generate research proposal guide using the unified agent."""
