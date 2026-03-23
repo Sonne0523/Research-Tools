@@ -12,6 +12,7 @@ const FeedbackButton: React.FC = () => {
         e.preventDefault();
         setSending(true);
         try {
+            console.log(`Submitting feedback to: ${API_BASE_URL}/api/feedback`);
             const response = await fetch(`${API_BASE_URL}/api/feedback`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -19,6 +20,7 @@ const FeedbackButton: React.FC = () => {
             });
 
             if (response.ok) {
+                console.log("Feedback submitted successfully.");
                 setStatus('success');
                 setTimeout(() => {
                     setIsOpen(false);
@@ -27,9 +29,12 @@ const FeedbackButton: React.FC = () => {
                     setEmail('');
                 }, 2000);
             } else {
+                const errorData = await response.json().catch(() => ({}));
+                console.error("Feedback submission failed:", response.status, errorData);
                 setStatus('error');
             }
         } catch (error) {
+            console.error("Feedback submission error:", error);
             setStatus('error');
         } finally {
             setSending(false);

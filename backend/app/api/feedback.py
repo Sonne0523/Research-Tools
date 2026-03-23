@@ -22,13 +22,7 @@ async def submit_feedback(request: FeedbackRequest):
         logger.warning("Feedback received but ADMIN_EMAIL not set in .env")
         return {"status": "success", "message": "Feedback received (logged to server)"}
 
-    # Attempt to send email notification
-    try:
-        smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-        smtp_port = int(os.getenv("SMTP_PORT", "587"))
-        smtp_user = os.getenv("SMTP_USER")
-        smtp_pass = os.getenv("SMTP_PASS")
-
+        logger.info(f"Attempting to send email from {smtp_user} to {admin_email} via {smtp_server}:{smtp_port}")
         if smtp_user and smtp_pass:
             msg = MIMEMultipart()
             msg['From'] = smtp_user
@@ -39,16 +33,18 @@ async def submit_feedback(request: FeedbackRequest):
             msg.attach(MIMEText(body, 'plain'))
             
             server = smtplib.SMTP(smtp_server, smtp_port)
+            server.set_debuglevel(1) # Enable SMTP debug output
             server.starttls()
             server.login(smtp_user, smtp_pass)
             server.send_message(msg)
             server.quit()
             logger.info("Feedback email notification sent successfully.")
         else:
-            logger.warning("SMTP credentials missing in .env - email notification skipped.")
+            logger.error("SMTP credentials missing in .env - email notification skipped.")
+            return {"status": "partial_success", "message": "Feedback logged, but email credentials missing."}
             
     except Exception as e:
-        logger.error(f"Failed to send feedback email: {e}")
-        # We still return success to the user as the feedback was logged
+        logger.exception(f"Failed to send feedback email: {e}")
+        return {"status": "error", "message": f"Feedback received but notification failed: {str(e)}"}
         
     return {"status": "success", "message": "Thank you for your feedback!"}
