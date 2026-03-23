@@ -4,6 +4,7 @@ from app.services import ocr_service, pdf_service, image_service, ai_service
 from app.websocket_manager import manager
 from typing import List
 import asyncio
+import anyio
 
 from app.api.auth import get_current_user
 
@@ -23,14 +24,14 @@ async def ocr_endpoint(
     contents = await file.read()
     
     if searchable:
-        pdf_bytes = ocr_service.create_searchable_pdf(contents)
+        pdf_bytes = await anyio.to_thread.run_sync(ocr_service.create_searchable_pdf, contents)
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
             headers={"Content-Disposition": f"attachment; filename=searchable_{file.filename}"}
         )
     
-    text = ocr_service.ocr_pdf(contents)
+    text = await anyio.to_thread.run_sync(ocr_service.ocr_pdf, contents)
     
     if latex:
         text = await ai_service.extract_formulas_as_latex(text)
@@ -53,18 +54,16 @@ async def ocr_with_progress(
     
     contents = await file.read()
     
-    async def progress_callback(page: int, total: int, progress: int):
-        await manager.send_progress(
-            client_id, 
-            page, 
-            total, 
-            progress, 
-            f"Processing page {page} of {total}"
+    loop = asyncio.get_running_loop()
+    def progress_callback(page: int, total: int, progress: int):
+        asyncio.run_coroutine_threadsafe(
+            manager.send_progress(client_id, page, total, progress, f"Processing page {page} of {total}"),
+            loop
         )
     
     if searchable:
         await manager.send_progress(client_id, 0, 100, 0, "Starting OCR with searchable PDF generation...")
-        pdf_bytes = ocr_service.create_searchable_pdf(contents, progress_callback)
+        pdf_bytes = await anyio.to_thread.run_sync(ocr_service.create_searchable_pdf, contents, progress_callback)
         await manager.send_progress(client_id, 100, 100, 100, "Complete!")
         return Response(
             content=pdf_bytes,
@@ -73,7 +72,7 @@ async def ocr_with_progress(
         )
     
     await manager.send_progress(client_id, 0, 100, 0, "Starting OCR text extraction...")
-    text = ocr_service.ocr_pdf(contents, progress_callback)
+    text = await anyio.to_thread.run_sync(ocr_service.ocr_pdf, contents, progress_callback)
     await manager.send_progress(client_id, 100, 100, 100, "Complete!")
     
     if latex:
@@ -107,17 +106,29 @@ async def synthesize(client_id: str, files: list[UploadFile] = File(...), user=D
         
     await manager.send_progress(client_id, 0, 100, 0, f"Starting synthesis of {len(files)} papers...")
     
+    loop = asyncio.get_running_loop()
     for i, file in enumerate(files):
         contents = await file.read()
-        # Create a closure to capture the current file index
-        async def make_cb():
-            curr_i = i
-            async def cb(p, t, prog):
-                await progress_callback(p, t, prog, curr_i, len(files))
-            return cb
+        
+        # Capture current file info for the closure
+        curr_i = i
+        total_f = len(files)
+        
+        def sync_cb(p, t, prog):
+            # Scale progress: each file gets equal share of 50%
+            file_share = 50 / total_f
+            base_progress = curr_i * file_share
+            scaled_progress = int(base_progress + (prog * (file_share / 100)))
             
-        cb = await make_cb()
-        text = ocr_service.ocr_pdf(contents, cb)
+            asyncio.run_coroutine_threadsafe(
+                manager.send_progress(
+                    client_id, p, t, scaled_progress, 
+                    f"Reading document {curr_i + 1} of {total_f}: Page {p} of {t}..."
+                ),
+                loop
+            )
+            
+        text = await anyio.to_thread.run_sync(ocr_service.ocr_pdf, contents, sync_cb)
         papers.append({"name": file.filename, "text": text})
     
     await manager.send_progress(client_id, 0, 100, 50, "All documents read successfully. Synthesizing...")
@@ -137,7 +148,7 @@ async def compress_endpoint(file: UploadFile = File(...), user=Depends(get_curre
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
     
     contents = await file.read()
-    compressed_data = pdf_service.compress_pdf(contents)
+    compressed_data = await anyio.to_thread.run_sync(pdf_service.compress_pdf, contents)
     
     return Response(
         content=compressed_data,
@@ -151,7 +162,7 @@ async def image_to_pdf_endpoint(files: List[UploadFile] = File(...), user=Depend
     for file in files:
         image_contents.append(await file.read())
         
-    pdf_data = image_service.images_to_pdf(image_contents)
+    pdf_data = await anyio.to_thread.run_sync(image_service.images_to_pdf, image_contents)
     return Response(
         content=pdf_data,
         media_type="application/pdf",
@@ -164,7 +175,7 @@ async def export_pdf_endpoint(data: dict, user=Depends(get_current_user)):
     if not text:
         raise HTTPException(status_code=400, detail="Text content is required.")
     
-    pdf_bytes = pdf_service.create_journal_pdf(text)
+    pdf_bytes = await anyio.to_thread.run_sync(pdf_service.create_journal_pdf, text)
     
     return Response(
         content=bytes(pdf_bytes),
