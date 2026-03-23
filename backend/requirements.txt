@@ -27,3 +27,5 @@ reportlab
 fpdf2
 websockets
 pymupdf
+markdown2
+beautifulsoup4
