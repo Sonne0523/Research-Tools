@@ -1,0 +1,46 @@
+# Secrets
+.env
+.env.*
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+.installed.cfg
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Node/React
+node_modules/
+dist/
+build/
+.DS_Store
+*.local
+
+# Database
+*.db
+*.sqlite3
+
+# OS stuff
+Thumbs.db
+desktop.ini

@@ -1,0 +1,9 @@
+{
+  "name": "researcher-toolset",
+  "version": "1.0.0",
+  "scripts": {
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "cd backend && .\\venv\\Scripts\\python -m uvicorn app.main:app --reload",
+    "dev": "npm run dev:frontend"
+  }
+}
