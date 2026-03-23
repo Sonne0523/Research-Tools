@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { API_BASE_URL } from '../config';
 
 const FeedbackView: React.FC = () => {
   const [message, setMessage] = useState('');

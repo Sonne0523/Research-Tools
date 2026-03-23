@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { API_BASE_URL } from '../config';
 
 const FeedbackButton: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -8,6 +7,9 @@ const FeedbackButton: React.FC = () => {
     const [sending, setSending] = useState(false);
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSending(true);
         try {
             console.log("Submitting feedback via Web3Forms...");
             const response = await fetch("https://api.web3forms.com/submit", {
@@ -47,6 +49,7 @@ const FeedbackButton: React.FC = () => {
         } finally {
             setSending(false);
         }
+    };
 
     if (!isOpen) {
         return (
