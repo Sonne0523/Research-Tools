@@ -24,7 +24,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ /app/
 
 # Expose the port
-EXPOSE 8000
+EXPOSE 10000
 
 # Start command
 # We use $PORT provided by Render
