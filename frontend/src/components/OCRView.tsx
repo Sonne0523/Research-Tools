@@ -86,7 +86,7 @@ const OCRView: FC = () => {
     setLoading(false);
   };
 
-  const downloadResult = (item: BatchItem) => {
+  const downloadResult = async (item: BatchItem) => {
     if (item.blob) {
       const url = URL.createObjectURL(item.blob);
       const a = document.createElement('a');
@@ -94,44 +94,36 @@ const OCRView: FC = () => {
       a.download = `searchable_${item.name}`;
       a.click();
     } else if (item.text) {
-      // Convert OCR text to a searchable PDF for download
-      const formData = new FormData();
-      // Create a dummy file with the OCR text as content for backend processing
-      const textFile = new File([item.text], 'temp.txt', { type: 'text/plain' });
-      formData.append('file', textFile);
-      formData.append('advanced', useAdvanced.toString());
-      formData.append('latex', useLatex.toString());
-      formData.append('searchable', 'true'); // Always create searchable PDF for download
-      
-      const token = localStorage.getItem('token');
-      fetch(`${API_BASE_URL}/api/tools/ocr`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData,
-      })
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+      // Use the dedicated export-pdf endpoint for structured text
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/api/tools/export-pdf`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ text: item.text }),
+        });
+
+        if (!response.ok) throw new Error('Export failed');
+        
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `ocr_${item.name}`;
+        a.download = `${item.name.split('.')[0]}_ocr.pdf`;
         a.click();
-      })
-      .catch((error) => {
-        console.error('Error creating searchable PDF:', error);
-        // Fallback to text download if PDF creation fails
-        const blob = new Blob([item.text || ''], { type: 'text/plain' });
+      } catch (error) {
+        console.error('Error exporting PDF:', error);
+        // Fallback to TXT
+        const blob = new Blob([item.text], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `${item.name.split('.')[0]}_ocr.txt`;
         a.click();
-      });
+      }
     }
   };
 
@@ -178,7 +170,7 @@ const OCRView: FC = () => {
                 style={{ marginTop: 0, padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
                 onClick={() => downloadResult(item)}
               >
-                Download {item.blob ? 'PDF' : 'TXT'}
+                Download PDF
               </button>
             )}
           </div>
