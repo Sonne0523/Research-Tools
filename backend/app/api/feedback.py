@@ -39,10 +39,14 @@ async def submit_feedback(request: FeedbackRequest):
             body = f"User: {request.user_email or 'Anonymous'}\n\nMessage:\n{request.message}"
             msg.attach(MIMEText(body, 'plain'))
             
-            server = smtplib.SMTP(smtp_server, smtp_port)
+            logger.info(f"Connecting to SMTP server at {smtp_server}:{smtp_port} with timeout=15...")
+            server = smtplib.SMTP(smtp_server, smtp_port, timeout=15)
             server.set_debuglevel(1) # Enable SMTP debug output
+            logger.info("Starting TLS...")
             server.starttls()
+            logger.info(f"Logging in as {smtp_user}...")
             server.login(smtp_user, smtp_pass)
+            logger.info("Sending message...")
             server.send_message(msg)
             server.quit()
             logger.info("Feedback email notification sent successfully.")
