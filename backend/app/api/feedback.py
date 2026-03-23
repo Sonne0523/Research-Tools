@@ -22,6 +22,13 @@ async def submit_feedback(request: FeedbackRequest):
         logger.warning("Feedback received but ADMIN_EMAIL not set in .env")
         return {"status": "success", "message": "Feedback received (logged to server)"}
 
+    # Attempt to send email notification
+    try:
+        smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+        smtp_port = int(os.getenv("SMTP_PORT", "587"))
+        smtp_user = os.getenv("SMTP_USER")
+        smtp_pass = os.getenv("SMTP_PASS")
+
         logger.info(f"Attempting to send email from {smtp_user} to {admin_email} via {smtp_server}:{smtp_port}")
         if smtp_user and smtp_pass:
             msg = MIMEMultipart()
