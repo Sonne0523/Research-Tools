@@ -8,6 +8,7 @@ import SummaryView from './components/SummaryView';
 import ProposalView from './components/ProposalView';
 import AuthView from './components/AuthView';
 import SynthesisView from './components/SynthesisView';
+import FeedbackButton from './components/FeedbackButton';
 
 const tools = [
   { id: 'ocr', title: 'PDF to OCR', desc: 'Scan PDFs and extract editable text using AI OCR.', icon: '🔍', component: OCRView },
@@ -131,6 +132,7 @@ function App() {
           </div>
         )}
       </div>
+      <FeedbackButton />
     </GoogleOAuthProvider>
   );
 }

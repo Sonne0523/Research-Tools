@@ -30,10 +30,11 @@ async def root():
     return {"message": "Welcome to the Researcher Toolset API"}
 
 # Include routers
-from app.api import tools, ai, auth
+from app.api import tools, ai, auth, feedback
 app.include_router(tools.router, prefix="/api/tools", tags=["Tools"])
 app.include_router(ai.router, prefix="/api/ai", tags=["AI"])
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
+app.include_router(feedback.router, prefix="/api/feedback", tags=["Feedback"])
 
 @app.websocket("/ws/progress/{client_id}")
 async def websocket_progress(websocket: WebSocket, client_id: str):
