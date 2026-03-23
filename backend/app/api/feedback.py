@@ -25,11 +25,11 @@ async def submit_feedback(request: FeedbackRequest):
     # Attempt to send email notification
     try:
         smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-        smtp_port = int(os.getenv("SMTP_PORT", "587"))
+        smtp_port = int(os.getenv("SMTP_PORT", "465")) # Switch to SMTPS (Port 465)
         smtp_user = os.getenv("SMTP_USER")
         smtp_pass = os.getenv("SMTP_PASS")
 
-        logger.info(f"Attempting to send email from {smtp_user} to {admin_email} via {smtp_server}:{smtp_port}")
+        logger.info(f"Connecting to SMTP server at {smtp_server}:{smtp_port} via SSL...")
         if smtp_user and smtp_pass:
             msg = MIMEMultipart()
             msg['From'] = smtp_user
@@ -39,11 +39,9 @@ async def submit_feedback(request: FeedbackRequest):
             body = f"User: {request.user_email or 'Anonymous'}\n\nMessage:\n{request.message}"
             msg.attach(MIMEText(body, 'plain'))
             
-            logger.info(f"Connecting to SMTP server at {smtp_server}:{smtp_port} with timeout=15...")
-            server = smtplib.SMTP(smtp_server, smtp_port, timeout=15)
-            server.set_debuglevel(1) # Enable SMTP debug output
-            logger.info("Starting TLS...")
-            server.starttls()
+            # Use SMTP_SSL for Port 465
+            server = smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=15)
+            server.set_debuglevel(1)
             logger.info(f"Logging in as {smtp_user}...")
             server.login(smtp_user, smtp_pass)
             logger.info("Sending message...")
@@ -52,10 +50,10 @@ async def submit_feedback(request: FeedbackRequest):
             logger.info("Feedback email notification sent successfully.")
         else:
             logger.error("SMTP credentials missing in .env - email notification skipped.")
-            return {"status": "partial_success", "message": "Feedback logged, but email credentials missing."}
+            raise HTTPException(status_code=500, detail="SMTP credentials missing in .env")
             
     except Exception as e:
         logger.exception(f"Failed to send feedback email: {e}")
-        return {"status": "error", "message": f"Feedback received but notification failed: {str(e)}"}
+        raise HTTPException(status_code=500, detail=f"Feedback notification failed: {str(e)}")
         
     return {"status": "success", "message": "Thank you for your feedback!"}
