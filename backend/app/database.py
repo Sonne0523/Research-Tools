@@ -22,7 +22,13 @@ else:
         separator = "&" if "?" in SQLALCHEMY_DATABASE_URL else "?"
         SQLALCHEMY_DATABASE_URL += f"{separator}sslmode=require"
     
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        pool_size=20,          # Increase base pool size
+        max_overflow=30,       # Allow more overflow during high load
+        pool_timeout=60,       # Wait longer for a connection if busy
+        pool_recycle=1800,     # Recycle connections every 30 mins
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
