@@ -23,11 +23,13 @@ def ocr_pdf(file_bytes: bytes, progress_callback: Optional[Callable] = None) -> 
                 
                 # 2. If no text (less than 10 chars), fallback to OCR (Slow)
                 if len(text) < 10:
-                    logger.info(f"OCR: Low native text on page {page_num+1}, using Tesseract")
+                    logger.info(f"OCR: Low native text on page {page_num+1}, using Tesseract (Fast Mode)")
                     pix = page.get_pixmap()
                     img_bytes = pix.tobytes()
                     img = Image.open(io.BytesIO(img_bytes))
-                    text += f"\n{pytesseract.image_to_string(img)}"
+                    # --oem 1 (LSTM only) is usually faster, --psm 3 (Auto page segmentation)
+                    tess_config = '--oem 1 --psm 3'
+                    text += f"\n{pytesseract.image_to_string(img, config=tess_config)}"
                     img.close()
                     pix = None # Explicitly clear large pixmap
                 
