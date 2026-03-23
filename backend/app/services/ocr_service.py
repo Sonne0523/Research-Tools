@@ -38,8 +38,8 @@ def ocr_pdf(file_bytes: bytes, progress_callback: Optional[Callable] = None) -> 
     results = [None] * total_pages
     completed = 0
 
-    # Optimal worker count (min of pages and 4 for standard server environments)
-    max_workers = min(total_pages, 4)
+    # Optimal worker count (min of pages and 2 for low-memory server environments)
+    max_workers = min(total_pages, 2)
     
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_page = {executor.submit(_process_page_text, data): data[0] for data in pages_to_process}
