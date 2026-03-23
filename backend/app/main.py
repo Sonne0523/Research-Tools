@@ -11,10 +11,20 @@ from app.websocket_manager import manager
 from app.database import engine, Base
 import app.models # Ensure models are loaded for Base.metadata
 
-# Initialize database tables
-Base.metadata.create_all(bind=engine)
+from contextlib import asynccontextmanager
 
-app = FastAPI(title="Researcher Toolset API")
+# Initialization function for DB
+def init_db():
+    Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Run DB init in a separate thread to avoid blocking startup
+    import anyio
+    await anyio.to_thread.run_sync(init_db)
+    yield
+
+app = FastAPI(title="Researcher Toolset API", lifespan=lifespan)
 
 # Configure CORS
 app.add_middleware(
