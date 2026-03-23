@@ -9,18 +9,24 @@ def ocr_pdf(file_bytes: bytes, progress_callback=None) -> str:
         total_pages = len(pdf_document)
         for page_num in range(total_pages):
             page = pdf_document.load_page(page_num)
-            pix = page.get_pixmap()
-            img_bytes = pix.tobytes()
-            img = Image.open(io.BytesIO(img_bytes))
             
-            text = pytesseract.image_to_string(img)
+            # 1. Try native text extraction first (Fast)
+            text = page.get_text().strip()
+            
+            # 2. If no text (less than 10 chars), fallback to OCR (Slow)
+            if len(text) < 10:
+                pix = page.get_pixmap()
+                img_bytes = pix.tobytes()
+                img = Image.open(io.BytesIO(img_bytes))
+                text = pytesseract.image_to_string(img)
+                
+                # Cleanup
+                img.close()
+                del pix
+                del img
+                del img_bytes
+            
             full_text += f"\n--- Page {page_num + 1} ---\n{text}"
-            
-            # Explicit cleanup for memory safety
-            img.close()
-            del pix
-            del img
-            del img_bytes
             
             if progress_callback:
                 progress = int(((page_num + 1) / total_pages) * 100)
