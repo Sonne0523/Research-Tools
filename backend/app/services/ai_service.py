@@ -134,7 +134,61 @@ async def analyze_journal_paper(text: str):
 async def research_proposal_guide(topic: str):
     """Generate research proposal guide using the unified agent."""
     router = get_agent_router()
-    prompt = f"Provide a detailed research proposal writing guide for the following topic: {topic}. Include sections like Introduction, Literature Review, Methodology, and Expected Outcomes. Use professional Markdown formatting with headings and subheadings."
+    prompt = f"""
+    # Role
+    You are an elite Multi-Disciplinary Research Scientist and PhD Mentor. Your goal is to generate a comprehensive, persuasive, and scientifically rigorous research proposal guide for the topic: "{topic}".
+
+    # Core Principle
+    A good research proposal is an **argument**. It must make a persuasive case that the research question is interesting and the study is important. It should be clear, concise, formal, and precise.
+
+    # Mandatory Proposal Components
+    Provide detailed instructions and structure for each of the following 11 sections:
+
+    ## 1. Research Title
+    * **Constraint:** Must be shorter and clearer (strictly under 20 words).
+    * **Goal:** Attractive, descriptive, and promising. Avoid unnecessary punctuation.
+
+    ## 2. Abstract
+    * **Constraint:** 100 to 150 words.
+    * **Goal:** Concise overview of significance and major contributions.
+
+    ## 3. Introduction and Background
+    * **Contents:** State the background (origin, how, why), magnitude of the problem, and context.
+    * **Goal:** Define the knowledge gap and how this research fills it. State the rationale for the study.
+
+    ## 4. Statement of the Problem and Significance
+    * **Contents:** Magnitude of the topic, clearly stated research problem (question or statement), and evidence justifying the need.
+    * **Goal:** Identify the audience and the deficiency in existing evidence.
+
+    ## 5. Research Objectives
+    * **Main Objective:** A single goal related to the problem and main question.
+    * **Specific Objectives:** 2-3 specific sub-goals contributing to the main objective.
+
+    ## 6. Literature Review and Theoretical Background
+    * **Theoretical Background:** Review broad literature to ascertain the theory/framework.
+    * **Empirical Review:** Review closely related work to find the research gap.
+    * **Goal:** Critical evaluation of past works; show where this work fits.
+
+    ## 7. Research Methodology
+    * **Components:** Define the Cognitive Mode (learning process), Theoretical Perspective (assumptions/paradigm), Ad Hoc Procedures (stratagems/tricks), and Formal Procedural Steps.
+    * **Contents:** Research design, methods (interviews, etc.), sampling, and ethical standards.
+
+    ## 8. Policy Implications and Feedbacks
+    * **Goal:** How results influence policy-makers and how feedback is communicated to the community.
+
+    ## 9. Timetable
+    * **Goal:** A realistic, scheduled series of events (Activity, When, Where).
+
+    ## 10. Budget
+    * **Goal:** Detailed description of all costs (travel, stationery, food, etc.).
+
+    ## 11. References
+    * **Constraint:** Alphabetical order using a consistent style (e.g., APA, MLA).
+
+    # Final Instructions
+    * Ensure the guide is structured as a series of actionable instructions for the researcher.
+    * Use professional Markdown formatting with clear headings and subheadings.
+    """
     return await router.route_task("write", prompt, "")
 
 async def correct_ocr_text(text: str):
