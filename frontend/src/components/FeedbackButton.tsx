@@ -49,43 +49,55 @@ const FeedbackButton: React.FC = () => {
     }
 
     return (
-        <div className="feedback-modal-overlay animate-fade-in">
-            <div className="feedback-modal pro-card">
-                <div className="feedback-header">
-                    <h2 style={{ color: 'white', margin: 0 }}>Quick Feedback</h2>
-                    <button className="close-btn" onClick={() => setIsOpen(false)}>&times;</button>
+        <div className="auth-overlay animate-fade-in" onClick={(e) => e.target === e.currentTarget && setIsOpen(false)}>
+            <div className="auth-card animate-scale-in">
+                <button className="auth-close" onClick={() => setIsOpen(false)}>&times;</button>
+                
+                <div className="auth-header">
+                    <h2>Quick Feedback</h2>
+                    <p>Help us improve your research experience</p>
                 </div>
+
                 {status === 'success' ? (
-                    <div className="feedback-success">
-                        <p style={{ color: '#10b981', fontWeight: 600 }}>✅ Sent! Thank you.</p>
+                    <div className="feedback-success" style={{ textAlign: 'center', padding: '2rem 0' }}>
+                        <p style={{ color: '#10b981', fontWeight: 600, fontSize: '1.1rem' }}>✅ Sent! Thank you.</p>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="pro-form" style={{ marginTop: '1rem' }}>
+                    <form onSubmit={handleSubmit} className="auth-form">
                         <div className="form-group">
-                          <label>Email (Optional)</label>
+                          <label>Work Email (Optional)</label>
                           <input 
                               type="email" 
-                              placeholder="Your email"
+                              placeholder="dr.scholar@university.edu"
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
-                              className="pro-input"
                           />
                         </div>
                         <div className="form-group">
-                          <label>Suggestion</label>
+                          <label>Suggestion / Bug Report</label>
                           <textarea 
                               required
-                              placeholder="Describe your suggestion..."
+                              placeholder="Tell us what's on your mind..."
                               value={message}
                               onChange={(e) => setMessage(e.target.value)}
                               className="pro-input pro-textarea"
-                              style={{ minHeight: '120px' }}
+                              style={{ 
+                                minHeight: '120px', 
+                                width: '100%', 
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                padding: '0.75rem 1rem',
+                                borderRadius: '0.75rem',
+                                color: 'white',
+                                fontFamily: 'inherit',
+                                resize: 'none'
+                              }}
                           />
                         </div>
-                        <button type="submit" disabled={sending} className="btn-submit">
-                            {sending ? 'Sending...' : 'Submit Feedback'}
+                        <button type="submit" disabled={sending} className="btn-auth-submit">
+                            {sending ? 'Sending Submission...' : 'Send Feedback'}
                         </button>
-                        {status === 'error' && <p className="error-text">Failed to send.</p>}
+                        {status === 'error' && <p className="error-text" style={{ color: '#ef4444', marginTop: '0.5rem', textAlign: 'center' }}>Failed to send. Please try again.</p>}
                     </form>
                 )}
             </div>
