@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Send, FileText, Loader2, User, Bot, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://researcher-tools-backend.onrender.com';
-const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || 'wss://researcher-tools-backend.onrender.com';
+import { API_BASE_URL, WS_BASE_URL } from '../config';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -22,6 +20,7 @@ const AskYourPDFView: React.FC = () => {
   const [clientId] = useState(() => `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -31,84 +30,96 @@ const AskYourPDFView: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.[0]) return;
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    await processFile(selectedFile);
-  };
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
 
-  const processFile = async (selectedFile: File) => {
+    setFile(selectedFile);
     setIsLoading(true);
+    setStatus('Preparing file...');
     setProgress(0);
-    setPaperContent('');
-    setMessages([]);
 
     const ws = new WebSocket(`${WS_BASE_URL}/ws/progress/${clientId}`);
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setProgress(data.progress);
-      setStatus(data.message);
+      try {
+        const data = JSON.parse(event.data);
+        if (data.progress !== undefined) setProgress(data.progress);
+        if (data.message) setStatus(data.message);
+      } catch (err) {
+        console.error('WebSocket message parse error:', err);
+      }
     };
 
     const formData = new FormData();
     formData.append('file', selectedFile);
 
     try {
-      const token = localStorage.getItem('token');
+      console.log(`[AskYourPDF] Starting upload for ${selectedFile.name} to ${API_BASE_URL}`);
+
       const response = await fetch(`${API_BASE_URL}/api/tools/extract-text-progress/${clientId}`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
         body: formData,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
 
-      if (!response.ok) throw new Error('Failed to process PDF');
-      const data = await response.json();
-      setPaperContent(data.text);
-      setMessages([{
-        role: 'assistant',
-        content: `I've finished reading **${selectedFile.name}**. I'm ready to help you analyze it. What would you like to know?`
-      }]);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[AskYourPDF] Text extraction successful');
+        setPaperContent(data.text);
+        setMessages([{
+          role: 'assistant',
+          content: `I've finished reading **${selectedFile.name}**. I'm ready to help you analyze it. What would you like to know?`
+        }]);
+      } else {
+        const errorData = await response.json().catch(() => ({ detail: 'Unknown upload error' }));
+        console.error('[AskYourPDF] Upload failed:', errorData);
+        alert(`Upload Failed: ${errorData.detail || 'Could not process PDF'}`);
+      }
     } catch (error) {
-      console.error(error);
-      setMessages([{ role: 'assistant', content: 'Sorry, I encountered an error while reading the PDF. Please try again.' }]);
+      console.error('[AskYourPDF] Error during upload:', error);
+      alert('Error connecting to research service. Please check your network and try again.');
     } finally {
       setIsLoading(false);
       ws.close();
     }
   };
 
-  const handleSend = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!input.trim() || !paperContent || isLoading) return;
 
-    const userMessage = input.trim();
+    const userMessage: Message = { role: 'user', content: input.trim() };
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
       const formData = new FormData();
-      formData.append('query', userMessage);
+      formData.append('query', userMessage.content);
       formData.append('paper_content', paperContent);
 
       const response = await fetch(`${API_BASE_URL}/api/tools/ai/chat`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
         body: formData,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
 
-      if (!response.ok) throw new Error('Failed to get answer');
-      const data = await response.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+      if (response.ok) {
+        const data = await response.json();
+        const botMessage: Message = { role: 'assistant', content: data.response };
+        setMessages(prev => [...prev, botMessage]);
+      } else {
+        const errorData = await response.json().catch(() => ({ detail: 'Chat API error' }));
+        console.error('[AskYourPDF] Chat failed:', errorData);
+        setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, I encountered an error: ${errorData.detail || 'Could not process that request.'}` }]);
+      }
     } catch (error) {
-      console.error(error);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I could not process that request.' }]);
+      console.error('[AskYourPDF] Chat error:', error);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Connection lost. Please try again.' }]);
     } finally {
       setIsLoading(false);
     }
@@ -121,6 +132,7 @@ const AskYourPDFView: React.FC = () => {
     setInput('');
     setProgress(0);
     setStatus('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -135,7 +147,13 @@ const AskYourPDFView: React.FC = () => {
             <p>Upload a research paper to start an AI-powered conversation about its contents.</p>
             
             <label className="dropzone">
-              <input type="file" accept=".pdf" onChange={handleFileUpload} hidden />
+              <input 
+                type="file" 
+                ref={fileInputRef}
+                accept=".pdf" 
+                onChange={handleFileUpload} 
+                hidden 
+              />
               <FileText className="w-8 h-8 mb-2 opacity-50" />
               <span>Click to select or drag & drop PDF</span>
               <span className="text-xs opacity-40 mt-1">Maximum file size: 20MB</span>
@@ -154,7 +172,7 @@ const AskYourPDFView: React.FC = () => {
                 <span className="status-text">{isLoading ? status : 'Paper Indexing Complete'}</span>
               </div>
             </div>
-            <button className="reset-btn" onClick={reset} title="Upload new paper">
+            <button type="button" className="reset-btn" onClick={reset} title="Upload new paper">
               <Trash2 className="w-5 h-5" />
             </button>
           </header>
@@ -195,7 +213,7 @@ const AskYourPDFView: React.FC = () => {
             <div ref={chatEndRef} />
           </div>
 
-          <form className="input-area" onSubmit={handleSend}>
+          <form className="input-area" onSubmit={handleSendMessage}>
             <input
               type="text"
               placeholder="Ask anything about the paper..."
