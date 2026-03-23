@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent, FC } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
+import { API_BASE_URL } from '../config';
 
 interface AuthViewProps {
   initialMode: 'login' | 'signup';
@@ -22,7 +23,7 @@ const AuthView: FC<AuthViewProps> = ({ initialMode, onClose, onSuccess }) => {
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
 
     try {
-      const response = await fetch(`http://localhost:8000${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -46,7 +47,7 @@ const AuthView: FC<AuthViewProps> = ({ initialMode, onClose, onSuccess }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8000/api/auth/google', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: credentialResponse.credential }),

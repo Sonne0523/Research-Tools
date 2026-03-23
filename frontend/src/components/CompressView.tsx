@@ -1,6 +1,7 @@
 import { useState, type FC } from 'react';
 import FileUpload from './FileUpload';
 import ProgressBar from './ProgressBar';
+import { API_BASE_URL } from '../config';
 
 const CompressView: FC = () => {
   const [loading, setLoading] = useState(false);
@@ -16,7 +17,7 @@ const CompressView: FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/tools/compress', {
+      const response = await fetch(`${API_BASE_URL}/api/tools/compress`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

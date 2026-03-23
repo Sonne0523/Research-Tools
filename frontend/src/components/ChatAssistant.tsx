@@ -1,5 +1,6 @@
 import { useState, type FC, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { API_BASE_URL } from '../config';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -39,7 +40,7 @@ const ChatAssistant: FC<ChatAssistantProps> = ({ context, onClose }) => {
     formData.append('paper_content', context);
 
     try {
-      const response = await fetch('http://localhost:8000/api/tools/ai/chat', {
+      const response = await fetch(`${API_BASE_URL}/api/tools/ai/chat`, {
         method: 'POST',
         body: formData,
       });

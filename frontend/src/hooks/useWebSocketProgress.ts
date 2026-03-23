@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { WS_BASE_URL } from '../config';
 
 export interface ProgressData {
   page: number;
@@ -32,7 +33,8 @@ export const useWebSocketProgress = () => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
     // Use generic progress endpoint
-    const ws = new WebSocket(`ws://localhost:8000/ws/progress/${clientIdRef.current}`);
+    // Use generic progress endpoint
+    const ws = new WebSocket(`${WS_BASE_URL}/ws/progress/${clientIdRef.current}`);
 
     ws.onopen = () => {
       console.log(`WebSocket connected [${clientIdRef.current}]`);

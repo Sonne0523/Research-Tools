@@ -2,6 +2,7 @@ import { useState, type FC } from 'react';
 import FileUpload from './FileUpload';
 import ProgressBar from './ProgressBar';
 import { useWebSocketProgress } from '../hooks/useWebSocketProgress';
+import { API_BASE_URL } from '../config';
 
 interface BatchItem {
   id: string;
@@ -54,7 +55,7 @@ const OCRView: FC = () => {
 
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`http://localhost:8000/api/tools/ocr-progress/${clientId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/tools/ocr-progress/${clientId}`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`
@@ -103,7 +104,7 @@ const OCRView: FC = () => {
       formData.append('searchable', 'true'); // Always create searchable PDF for download
       
       const token = localStorage.getItem('token');
-      fetch('http://localhost:8000/api/tools/ocr', {
+      fetch(`${API_BASE_URL}/api/tools/ocr`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

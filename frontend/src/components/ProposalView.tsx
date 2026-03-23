@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ProgressBar from './ProgressBar';
 import { useWebSocketProgress } from '../hooks/useWebSocketProgress';
+import { API_BASE_URL } from '../config';
 
 const ProposalView: FC = () => {
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ const ProposalView: FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8000/api/ai/proposal-guide/${clientId}?topic=${encodeURIComponent(topic)}`, {
+      const response = await fetch(`${API_BASE_URL}/api/ai/proposal-guide/${clientId}?topic=${encodeURIComponent(topic)}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -44,7 +45,7 @@ const ProposalView: FC = () => {
     if (!result) return;
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/tools/export-pdf', {
+      const response = await fetch(`${API_BASE_URL}/api/tools/export-pdf`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
