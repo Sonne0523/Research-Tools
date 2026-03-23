@@ -49,35 +49,41 @@ const FeedbackButton: React.FC = () => {
     }
 
     return (
-        <div className="feedback-modal-overlay">
-            <div className="feedback-modal">
+        <div className="feedback-modal-overlay animate-fade-in">
+            <div className="feedback-modal pro-card">
                 <div className="feedback-header">
-                    <h3>Quick Feedback</h3>
+                    <h2 style={{ color: 'white', margin: 0 }}>Quick Feedback</h2>
                     <button className="close-btn" onClick={() => setIsOpen(false)}>&times;</button>
                 </div>
                 {status === 'success' ? (
                     <div className="feedback-success">
-                        <p>✅ Sent! Thank you.</p>
+                        <p style={{ color: '#10b981', fontWeight: 600 }}>✅ Sent! Thank you.</p>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="feedback-form">
-                        <input 
-                            type="email" 
-                            placeholder="Your email (optional)"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="pro-input"
-                        />
-                        <textarea 
-                            required
-                            placeholder="Quick suggestion..."
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            className="pro-input"
-                            style={{ minHeight: '100px' }}
-                        />
-                        <button type="submit" disabled={sending} className="btn-submit" style={{ padding: '0.75rem' }}>
-                            {sending ? 'Sending...' : 'Submit'}
+                    <form onSubmit={handleSubmit} className="pro-form" style={{ marginTop: '1rem' }}>
+                        <div className="form-group">
+                          <label>Email (Optional)</label>
+                          <input 
+                              type="email" 
+                              placeholder="Your email"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              className="pro-input"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Suggestion</label>
+                          <textarea 
+                              required
+                              placeholder="Describe your suggestion..."
+                              value={message}
+                              onChange={(e) => setMessage(e.target.value)}
+                              className="pro-input pro-textarea"
+                              style={{ minHeight: '120px' }}
+                          />
+                        </div>
+                        <button type="submit" disabled={sending} className="btn-submit">
+                            {sending ? 'Sending...' : 'Submit Feedback'}
                         </button>
                         {status === 'error' && <p className="error-text">Failed to send.</p>}
                     </form>

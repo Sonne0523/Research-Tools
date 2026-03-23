@@ -167,6 +167,30 @@ body {
   padding: 1rem;
 }
 
+.feedback-modal {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 2rem;
+  width: 95%;
+  max-width: 450px;
+  padding: 2.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
 .auth-card {
   background: rgba(30, 41, 59, 0.8);
   backdrop-filter: blur(20px);
@@ -1228,8 +1252,8 @@ body {
 }
 
 .feedback-trigger-floating:hover {
-  transform: scale(1.15) rotate(5deg);
-  box-shadow: 0 15px 35px rgba(99, 102, 241, 0.5);
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
 }
 
 .close-btn {
