@@ -3,6 +3,7 @@ import pytesseract
 from PIL import Image
 import io
 import logging
+import gc
 from typing import Callable, Optional
 
 logger = logging.getLogger(__name__)
@@ -26,14 +27,19 @@ def ocr_pdf(file_bytes: bytes, progress_callback: Optional[Callable] = None) -> 
                     pix = page.get_pixmap()
                     img_bytes = pix.tobytes()
                     img = Image.open(io.BytesIO(img_bytes))
-                    text = pytesseract.image_to_string(img)
+                    text += f"\n{pytesseract.image_to_string(img)}"
                     img.close()
+                    pix = None # Explicitly clear large pixmap
                 
                 full_text += f"\n--- Page {page_num + 1} ---\n{text}"
                 
                 if progress_callback:
                     progress = int(((page_num + 1) / total_pages) * 100)
                     progress_callback(page_num + 1, total_pages, progress)
+                
+                # Periodic GC to keep memory low on free tiers
+                if page_num % 5 == 0:
+                    gc.collect()
                     
         return full_text
     except Exception as e:
@@ -61,10 +67,14 @@ def create_searchable_pdf(file_bytes: bytes, progress_callback: Optional[Callabl
                     output_pdf.insert_pdf(ocr_page_doc)
                 
                 img.close()
+                pix = None # Explicitly clear large pixmap
                 
                 if progress_callback:
                     progress = int(((page_num + 1) / total_pages) * 100)
                     progress_callback(page_num + 1, total_pages, progress)
+                
+                if page_num % 5 == 0:
+                    gc.collect()
                     
             return output_pdf.tobytes()
     except Exception as e:
