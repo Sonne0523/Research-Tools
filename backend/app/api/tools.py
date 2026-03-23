@@ -8,7 +8,12 @@ import anyio
 
 from app.api.auth import get_current_user
 
+from pydantic import BaseModel
+
 router = APIRouter()
+
+class ExportPDF(BaseModel):
+    text: str
 
 @router.post("/ocr")
 async def ocr_endpoint(
@@ -170,12 +175,11 @@ async def image_to_pdf_endpoint(files: List[UploadFile] = File(...), user=Depend
     )
 
 @router.post("/export-pdf")
-async def export_pdf_endpoint(data: dict, user=Depends(get_current_user)):
-    text = data.get("text", "")
-    if not text:
+async def export_pdf_endpoint(data: ExportPDF, user=Depends(get_current_user)):
+    if not data.text:
         raise HTTPException(status_code=400, detail="Text content is required.")
     
-    pdf_bytes = await anyio.to_thread.run_sync(pdf_service.create_journal_pdf, text)
+    pdf_bytes = await anyio.to_thread.run_sync(pdf_service.create_journal_pdf, data.text)
     
     return Response(
         content=bytes(pdf_bytes),
