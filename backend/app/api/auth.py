@@ -12,6 +12,9 @@ from pydantic import BaseModel, EmailStr
 
 from app.database import get_db
 from app.models import User
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Configuration
 SECRET_KEY = os.getenv("JWT_SECRET", "super-secret-key-for-research-app")
@@ -73,22 +76,32 @@ async def get_current_user(token: HTTPAuthorizationCredentials = Depends(securit
 
 @router.post("/signup", response_model=Token)
 def signup(user_data: UserSignUp, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user_data.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    hashed_password = pwd_context.hash(user_data.password)
-    new_user = User(
-        email=user_data.email,
-        name=user_data.name,
-        hashed_password=hashed_password
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    
-    access_token = create_access_token(data={"sub": new_user.email})
-    return {"access_token": access_token, "token_type": "bearer", "username": new_user.name}
+    logger.info(f"Signup attempt for email: {user_data.email}")
+    try:
+        db_user = db.query(User).filter(User.email == user_data.email).first()
+        if db_user:
+            logger.warning(f"Signup failed: Email {user_data.email} already registered")
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        logger.info("Hashing password...")
+        hashed_password = pwd_context.hash(user_data.password)
+        
+        logger.info("Creating new user in database...")
+        new_user = User(
+            email=user_data.email,
+            name=user_data.name,
+            hashed_password=hashed_password
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        
+        logger.info(f"Signup successful for user: {new_user.email}")
+        access_token = create_access_token(data={"sub": new_user.email})
+        return {"access_token": access_token, "token_type": "bearer", "username": new_user.name}
+    except Exception as e:
+        logger.error(f"Signup error for {user_data.email}: {str(e)}")
+        raise e
 
 @router.post("/login", response_model=Token)
 def login(user_data: UserLogin, db: Session = Depends(get_db)):
