@@ -1,6 +1,7 @@
 import { useState, type FC } from 'react';
 import FileUpload from './FileUpload';
 import ProgressBar from './ProgressBar';
+import { API_BASE_URL } from '../config';
 
 const PhotoToPDFView: FC = () => {
   const [loading, setLoading] = useState(false);
@@ -18,8 +19,12 @@ const PhotoToPDFView: FC = () => {
 
     try {
       setProgress(60);
-      const response = await fetch('http://localhost:8000/api/tools/image-to-pdf', {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/tools/image-to-pdf`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       });
       

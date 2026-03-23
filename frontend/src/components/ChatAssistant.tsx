@@ -40,8 +40,12 @@ const ChatAssistant: FC<ChatAssistantProps> = ({ context, onClose }) => {
     formData.append('paper_content', context);
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/api/tools/ai/chat`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       });
       const data = await response.json();
