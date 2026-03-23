@@ -15,77 +15,30 @@ router = APIRouter()
 class ExportPDF(BaseModel):
     text: str
 
-@router.post("/ocr")
-async def ocr_endpoint(
-    file: UploadFile = File(...), 
-    advanced: bool = Form(False), 
-    latex: bool = Form(False),
-    searchable: bool = Form(False),
-    user=Depends(get_current_user)
-):
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are supported for OCR.")
-    
-    contents = await file.read()
-    
-    if searchable:
-        pdf_bytes = await anyio.to_thread.run_sync(ocr_service.create_searchable_pdf, contents)
-        return Response(
-            content=pdf_bytes,
-            media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename=searchable_{file.filename}"}
-        )
-    
-    text = await anyio.to_thread.run_sync(ocr_service.ocr_pdf, contents)
-    
-    if latex:
-        text = await ai_service.extract_formulas_as_latex(text)
-    elif advanced:
-        text = await ai_service.correct_ocr_text(text)
-        
-    return {"filename": file.filename, "text": text}
-
-@router.post("/ocr-progress/{client_id}")
-async def ocr_with_progress(
+@router.post("/extract-text-progress/{client_id}")
+async def extract_text_with_progress(
     client_id: str,
     file: UploadFile = File(...), 
-    advanced: bool = Form(False), 
-    latex: bool = Form(False),
-    searchable: bool = Form(False),
     user=Depends(get_current_user)
 ):
     if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are supported for OCR.")
+        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
     
     contents = await file.read()
     
     loop = asyncio.get_running_loop()
     def progress_callback(page: int, total: int, progress: int):
         asyncio.run_coroutine_threadsafe(
-            manager.send_progress(client_id, page, total, progress, f"Processing page {page} of {total}"),
+            manager.send_progress(client_id, page, total, progress, f"Reading page {page} of {total}"),
             loop
         )
     
-    if searchable:
-        await manager.send_progress(client_id, 0, 100, 0, "Starting OCR with searchable PDF generation...")
-        pdf_bytes = await anyio.to_thread.run_sync(ocr_service.create_searchable_pdf, contents, progress_callback)
-        await manager.send_progress(client_id, 100, 100, 100, "Complete!")
-        return Response(
-            content=pdf_bytes,
-            media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename=searchable_{file.filename}"}
-        )
-    
-    await manager.send_progress(client_id, 0, 100, 0, "Starting OCR text extraction...")
+    await manager.send_progress(client_id, 0, 100, 0, "Starting text extraction...")
     text = await anyio.to_thread.run_sync(ocr_service.ocr_pdf, contents, progress_callback)
     await manager.send_progress(client_id, 100, 100, 100, "Complete!")
     
-    if latex:
-        text = await ai_service.extract_formulas_as_latex(text)
-    elif advanced:
-        text = await ai_service.correct_ocr_text(text)
-        
     return {"filename": file.filename, "text": text}
+
 
 @router.post("/ai/summarize")
 async def summarize(file: UploadFile = File(...), user=Depends(get_current_user)):
@@ -147,19 +100,6 @@ async def chat_endpoint(query: str = Form(...), paper_content: str = Form(...), 
     response = await ai_service.research_chat(query, paper_content)
     return {"response": response}
 
-@router.post("/compress")
-async def compress_endpoint(file: UploadFile = File(...), user=Depends(get_current_user)):
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
-    
-    contents = await file.read()
-    compressed_data = await anyio.to_thread.run_sync(pdf_service.compress_pdf, contents)
-    
-    return Response(
-        content=compressed_data,
-        media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename=compressed_{file.filename}"}
-    )
 
 @router.post("/image-to-pdf")
 async def image_to_pdf_endpoint(files: List[UploadFile] = File(...), user=Depends(get_current_user)):

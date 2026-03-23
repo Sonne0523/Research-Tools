@@ -22,8 +22,10 @@ const AuthView: FC<AuthViewProps> = ({ initialMode, onClose, onSuccess }) => {
 
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
 
+    const fullUrl = `${API_BASE_URL}${endpoint}`;
+    console.log(`Auth request: ${fullUrl}`, formData);
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const response = await fetch(fullUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

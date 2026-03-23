@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
-import OCRView from './components/OCRView';
-import CompressView from './components/CompressView';
 import AnalysisView from './components/AnalysisView';
+import AskYourPDFView from './components/AskYourPDFView';
 import SummaryView from './components/SummaryView';
 import ProposalView from './components/ProposalView';
 import AuthView from './components/AuthView';
@@ -11,8 +10,7 @@ import FeedbackView from './components/FeedbackView';
 import FeedbackButton from './components/FeedbackButton';
 
 const tools = [
-  { id: 'ocr', title: 'PDF to OCR', desc: 'Scan PDFs and extract editable text using AI OCR.', icon: '🔍', component: OCRView },
-  { id: 'compress', title: 'PDF Compress', desc: 'Reduce file size without losing quality.', icon: '📉', component: CompressView },
+  { id: 'ask-pdf', title: 'AskYourPDF', desc: 'Interact with research papers using AI-powered chat.', icon: '💬', component: AskYourPDFView },
   { id: 'analysis', title: 'Journal Analysis', desc: 'Deep dive into research papers with AI extraction.', icon: '🧬', component: AnalysisView },
   { id: 'summary', title: 'PDF Summary', desc: 'Get concise summaries of long research documents.', icon: '📝', component: SummaryView },
   { id: 'proposal', title: 'Proposal Guide', desc: 'Step-by-step writing guide for research proposals.', icon: '🎓', component: ProposalView },
