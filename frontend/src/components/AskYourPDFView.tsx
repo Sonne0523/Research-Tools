@@ -230,11 +230,11 @@ const AskYourPDFView: React.FC = () => {
 
       <style>{`
         .ask-pdf-container {
-          height: calc(100vh - 180px);
+          height: calc(100vh - 120px);
           display: flex;
           flex-direction: column;
           color: white;
-          max-width: 1000px;
+          max-width: 1200px;
           margin: 0 auto;
           width: 100%;
         }
