@@ -13,9 +13,14 @@ if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
         SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
     )
 else:
-    # Fix for SQLAlchemy not supporting 'postgres://' (standard in many cloud providers)
+    # Fix for SQLAlchemy not supporting 'postgres://'
     if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
         SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    
+    # Ensure sslmode=require is present for Supabase/Production
+    if "sslmode=" not in SQLALCHEMY_DATABASE_URL:
+        separator = "&" if "?" in SQLALCHEMY_DATABASE_URL else "?"
+        SQLALCHEMY_DATABASE_URL += f"{separator}sslmode=require"
     
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
