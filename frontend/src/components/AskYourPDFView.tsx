@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Upload, Send, FileText, Loader2, User, Bot, Trash2 } from 'lucide-react';
+import { Upload, Send, FileText, Loader2, User, Bot, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
