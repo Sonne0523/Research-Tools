@@ -7,8 +7,7 @@ import AnalysisView from './components/AnalysisView';
 import SummaryView from './components/SummaryView';
 import ProposalView from './components/ProposalView';
 import AuthView from './components/AuthView';
-import SynthesisView from './components/SynthesisView';
-import FeedbackButton from './components/FeedbackButton';
+import FeedbackView from './components/FeedbackView';
 
 const tools = [
   { id: 'ocr', title: 'PDF to OCR', desc: 'Scan PDFs and extract editable text using AI OCR.', icon: '🔍', component: OCRView },
@@ -16,7 +15,7 @@ const tools = [
   { id: 'analysis', title: 'Journal Analysis', desc: 'Deep dive into research papers with AI extraction.', icon: '🧬', component: AnalysisView },
   { id: 'summary', title: 'PDF Summary', desc: 'Get concise summaries of long research documents.', icon: '📝', component: SummaryView },
   { id: 'proposal', title: 'Proposal Guide', desc: 'Step-by-step writing guide for research proposals.', icon: '🎓', component: ProposalView },
-  { id: 'synthesis', title: 'Synthesis Matrix', desc: 'Compare up to 5 papers side-by-side in a comparative matrix.', icon: '🔬', component: SynthesisView },
+  { id: 'feedback', title: 'Feedback', desc: 'Help us improve with your suggestions and bug reports.', icon: '💬', component: FeedbackView },
 ];
 
 function App() {
@@ -132,7 +131,6 @@ function App() {
           </div>
         )}
       </div>
-      <FeedbackButton />
     </GoogleOAuthProvider>
   );
 }
