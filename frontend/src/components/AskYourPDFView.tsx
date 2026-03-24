@@ -233,7 +233,7 @@ const AskYourPDFView: React.FC = () => {
           height: calc(100vh - 120px);
           display: flex;
           flex-direction: column;
-          color: white;
+          color: var(--text-main);
           max-width: 1200px;
           margin: 0 auto;
           width: 100%;
@@ -257,15 +257,15 @@ const AskYourPDFView: React.FC = () => {
         }
 
         .upload-card {
-          background: rgba(255, 255, 255, 0.05);
+          background: var(--card-bg);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
           border-radius: 24px;
           padding: 3rem;
           text-align: center;
           width: 100%;
           max-width: 500px;
-          box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+          box-shadow: var(--shadow-premium);
         }
 
         .upload-icon-wrapper {
@@ -289,7 +289,7 @@ const AskYourPDFView: React.FC = () => {
         }
 
         .upload-card p {
-          color: rgba(255, 255, 255, 0.6);
+          color: var(--text-muted);
           margin-bottom: 2rem;
         }
 
@@ -298,11 +298,11 @@ const AskYourPDFView: React.FC = () => {
           flex-direction: column;
           align-items: center;
           padding: 3rem 2rem;
-          border: 2px dashed rgba(255, 255, 255, 0.1);
+          border: 2px dashed var(--glass-border);
           border-radius: 16px;
           cursor: pointer;
           transition: all 0.3s ease;
-          background: rgba(255, 255, 255, 0.02);
+          background: var(--glass-bg);
         }
 
         .dropzone:hover {
@@ -316,18 +316,18 @@ const AskYourPDFView: React.FC = () => {
           flex: 1;
           display: flex;
           flex-direction: column;
-          background: rgba(15, 15, 20, 0.6);
+          background: var(--card-bg);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--card-border);
           border-radius: 24px;
           overflow: hidden;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+          box-shadow: var(--shadow-premium);
         }
 
         .chat-header {
           padding: 1rem 1.5rem;
-          background: rgba(255, 255, 255, 0.03);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          background: var(--glass-bg);
+          border-bottom: 1px solid var(--glass-border);
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -361,6 +361,7 @@ const AskYourPDFView: React.FC = () => {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+          color: var(--text-main);
         }
 
         .status-text {
@@ -371,7 +372,7 @@ const AskYourPDFView: React.FC = () => {
         .reset-btn {
           background: transparent;
           border: none;
-          color: rgba(255, 255, 255, 0.3);
+          color: var(--text-muted);
           cursor: pointer;
           padding: 0.5rem;
           border-radius: 8px;
@@ -404,7 +405,7 @@ const AskYourPDFView: React.FC = () => {
         .progress-container {
           width: 200px;
           height: 4px;
-          background: rgba(255, 255, 255, 0.1);
+          background: var(--glass-border);
           border-radius: 2px;
           overflow: hidden;
         }
@@ -457,17 +458,19 @@ const AskYourPDFView: React.FC = () => {
           border-radius: 18px;
           line-height: 1.6;
           font-size: 0.95rem;
+          color: var(--text-main);
         }
 
         .user .message-bubble {
           background: #6366f1;
           border-bottom-right-radius: 4px;
+          color: white;
         }
 
         .assistant .message-bubble {
-          background: rgba(255, 255, 255, 0.05);
+          background: var(--glass-bg);
           border-bottom-left-radius: 4px;
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border: 1px solid var(--glass-border);
         }
 
         .typing {
@@ -479,7 +482,7 @@ const AskYourPDFView: React.FC = () => {
         .dot {
           width: 6px;
           height: 6px;
-          background: rgba(255, 255, 255, 0.4);
+          background: var(--text-muted);
           border-radius: 50%;
           animation: bounce 1.4s infinite ease-in-out;
         }
@@ -494,19 +497,19 @@ const AskYourPDFView: React.FC = () => {
 
         .input-area {
           padding: 1.5rem;
-          background: rgba(255, 255, 255, 0.02);
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--glass-bg);
+          border-top: 1px solid var(--glass-border);
           display: flex;
           gap: 1rem;
         }
 
         .input-area input {
           flex: 1;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: var(--input-bg);
+          border: 1px solid var(--glass-border);
           border-radius: 12px;
           padding: 0.8rem 1.2rem;
-          color: white;
+          color: var(--text-main);
           outline: none;
           transition: border-color 0.2s;
         }
@@ -546,11 +549,11 @@ const AskYourPDFView: React.FC = () => {
           font-size: 0.85rem;
         }
         .message-bubble th, .message-bubble td {
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid var(--glass-border);
           padding: 8px;
           text-align: left;
         }
-        .message-bubble th { background: rgba(255,255,255,0.05); }
+        .message-bubble th { background: var(--glass-bg); }
       `}</style>
     </div>
   );

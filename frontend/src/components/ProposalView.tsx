@@ -73,7 +73,7 @@ const ProposalView: FC = () => {
             <input
               type="text"
               className="card"
-              style={{ width: '100%', marginBottom: '1rem', padding: '1rem', background: 'var(--glass-bg)', color: 'white' }}
+              style={{ width: '100%', marginBottom: '1rem', padding: '1rem', background: 'var(--glass-bg)', color: 'var(--text-main)' }}
               placeholder="e.g. AI ethics in medicine"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
