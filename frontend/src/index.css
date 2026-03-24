@@ -887,20 +887,14 @@ body {
   column-span: all;
 }
 
-/* 2-Column Body */
+/* Single-Column Body */
 .text-result {
-  column-count: 2;
-  column-gap: 2.5rem;
-  column-rule: 0.5px solid #ddd;
+  column-count: 1;
   text-align: justify;
   hyphens: auto;
 }
 
 @media (max-width: 800px) {
-  .text-result {
-    column-count: 1;
-  }
-
   .paper-output {
     padding: 2rem 1.5rem !important;
   }
