@@ -55,6 +55,18 @@ function App() {
     if (savedUser) setCurrentUser(savedUser);
   }, []);
 
+  const [theme, setTheme] = useState<string>(localStorage.getItem('theme') || 'dark');
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
   const googleClientId = "539318391775-t10t6t9n99k7h6t4ehmiid9m9u1dhf78.apps.googleusercontent.com";
 
   return (
@@ -76,6 +88,9 @@ function App() {
             ))}
           </div>
           <div className="auth-buttons">
+            <button className="theme-toggle" onClick={toggleTheme} title="Toggle Dark/Light Mode">
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
             {currentUser ? (
               <>
                 <span style={{ color: '#a855f7', fontWeight: 600, fontSize: '0.9rem' }}>Dr. {currentUser}</span>
