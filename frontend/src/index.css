@@ -1314,19 +1314,23 @@ body {
 /* Mobile Responsiveness Improvements */
 @media (max-width: 768px) {
   .container {
-    padding: 160px 1.25rem 2rem; /* Increased top padding to avoid navbar collision */
+    padding: 220px 1.25rem 2rem; /* Even more top padding to ensure hero is clear */
+  }
+
+  .header {
+    margin-bottom: 3rem;
   }
 
   .header h1 {
     font-size: 2.2rem;
     line-height: 1.2;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
   }
 
   .header p {
     font-size: 1rem;
     padding: 0 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 
   .grid {
@@ -1336,65 +1340,81 @@ body {
   }
 
   .navbar {
-    padding: 0.75rem 1rem;
+    padding: 1rem;
     height: auto;
-    min-height: 80px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    min-height: 140px; /* Force enough height for all mobile rows */
+    background: var(--bg-nav);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
   }
 
   .nav-content {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
     width: 100%;
+    align-items: center;
   }
 
   .nav-logo {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     text-align: center;
-    width: 100%;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0;
   }
 
   .nav-links {
     width: 100%;
     justify-content: center;
     padding: 0.5rem 0;
+    margin: 0;
+    gap: 0.25rem;
     border-top: 1px solid var(--glass-border);
     border-bottom: 1px solid var(--glass-border);
-    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
   .nav-link {
-    font-size: 0.8rem;
-    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+    padding: 0.4rem 0.5rem;
+    white-space: nowrap;
   }
 
   .auth-buttons {
     width: 100%;
     justify-content: center;
     margin-left: 0;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    padding-top: 0.25rem;
+    gap: 1rem;
+    flex-direction: row; /* Keep them together horizontally */
+    flex-wrap: wrap; 
   }
 
   .auth-buttons span {
     font-size: 0.85rem;
     width: 100%;
     text-align: center;
-    margin-bottom: -0.25rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
   }
 
   .theme-toggle {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     margin-right: 0;
+    background: rgba(255, 255, 255, 0.1);
   }
 
-  .btn-login, .btn-signup {
-    font-size: 0.85rem;
+  /* Make buttons stand out more on mobile to prevent blending with hero text */
+  .btn-login {
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .btn-signup {
+    font-size: 0.8rem;
     padding: 0.5rem 1rem;
   }
 
@@ -1421,7 +1441,7 @@ body {
   }
 
   .pro-card {
-    padding: 2.5rem 1.25rem;
+    padding: 2rem 1.25rem;
   }
 
   .card-header h1 {
@@ -1460,7 +1480,11 @@ body {
 
 @media (max-width: 480px) {
   .container {
-    padding-top: 200px; /* Even more padding for very small screens */
+    padding-top: 260px; /* Substantial padding for small phones */
+  }
+
+  .navbar {
+    min-height: 180px; /* Ensure even more height */
   }
 
   .header h1 {
@@ -1473,7 +1497,7 @@ body {
 
   .btn-signup, .btn-login {
     flex: 1;
-    min-width: 100px;
+    min-width: 110px;
     text-align: center;
   }
 }
