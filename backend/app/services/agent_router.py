@@ -23,7 +23,7 @@ class AgentRouter:
         self.api_key = os.getenv("OPENAI_API_KEY", "")
         self.base_url = os.getenv("OPENAI_BASE_URL", "https://integrate.api.nvidia.com/v1")
         self.model = os.getenv("AGENT_MODEL", "abacusai/dracarys-llama-3.1-70b-instruct")
-        self.timeout = int(os.getenv("AGENT_TIMEOUT", "120"))
+        self.timeout = int(os.getenv("AGENT_TIMEOUT", "300"))
 
         if not self.api_key:
             logger.warning("OPENAI_API_KEY not found in environment variables")
@@ -59,7 +59,7 @@ class AgentRouter:
                 messages=[{"role": "user", "content": full_content}],
                 temperature=0.5,
                 top_p=1,
-                max_tokens=4096,
+                max_tokens=8192,
                 stream=True,
             )
 
