@@ -59,7 +59,7 @@ class AgentRouter:
                 messages=[{"role": "user", "content": full_content}],
                 temperature=0.5,
                 top_p=1,
-                max_tokens=1024,
+                max_tokens=4096,
                 stream=True,
             )
 
