@@ -12,7 +12,9 @@ from pydantic import BaseModel, EmailStr
 
 from app.database import get_db
 from app.models import User
+from app.services import email_service
 import logging
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +99,10 @@ def signup(user_data: UserSignUp, db: Session = Depends(get_db)):
         db.refresh(new_user)
         
         logger.info(f"Signup successful for user: {new_user.email}")
+        
+        # Send welcome email asynchronously
+        asyncio.create_task(email_service.send_welcome_email(new_user.email, new_user.name))
+        
         access_token = create_access_token(data={"sub": new_user.email})
         return {"access_token": access_token, "token_type": "bearer", "username": new_user.name}
     except Exception as e:
@@ -135,6 +141,8 @@ def google_auth(data: GoogleAuth, db: Session = Depends(get_db)):
             db.add(user)
             db.commit()
             db.refresh(user)
+            # Send welcome email asynchronously for new Google users
+            asyncio.create_task(email_service.send_welcome_email(user.email, user.name))
             
         access_token = create_access_token(data={"sub": user.email})
         return {"access_token": access_token, "token_type": "bearer", "username": user.name}
