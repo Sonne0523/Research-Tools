@@ -1,13 +1,16 @@
 import httpx
 import os
 import logging
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Use absolute path to ensure .env is loaded correctly in all environments
+env_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 logger = logging.getLogger(__name__)
 
-# EmailJS Config (Using the VITE_ prefixed vars from the .env)
+# EmailJS Config
 SERVICE_ID = os.getenv("VITE_EMAILJS_SERVICE_ID")
 TEMPLATE_ID = os.getenv("VITE_EMAILJS_TEMPLATE_ID")
 PUBLIC_KEY = os.getenv("VITE_EMAILJS_PUBLIC_KEY")
@@ -61,11 +64,14 @@ async def send_welcome_email(to_email: str, name: str):
     Send a welcome email using EmailJS REST API.
     """
     if not all([SERVICE_ID, TEMPLATE_ID, PUBLIC_KEY]):
-        logger.error("EmailJS configuration missing. Skipping welcome email.")
+        logger.error(f"EmailJS configuration missing. Service: {SERVICE_ID}, Template: {TEMPLATE_ID}, Public: {PUBLIC_KEY}")
         return False
 
     url = "https://api.emailjs.com/api/v1.0/email/send"
     
+    # Use simple replacement instead of .format() to avoid issues with nesting braces in HTML/CSS
+    final_html = WELCOME_HTML_TEMPLATE.replace("{name}", name)
+
     payload = {
         "service_id": SERVICE_ID,
         "template_id": TEMPLATE_ID,
@@ -73,8 +79,9 @@ async def send_welcome_email(to_email: str, name: str):
         "template_params": {
             "from_name": "Researcher.AI Team",
             "to_email": to_email,
+            "reply_to": "support@researcher.ai",
             "subject": "Welcome to Researcher.AI!",
-            "message_html": WELCOME_HTML_TEMPLATE.format(name=name)
+            "message_html": final_html
         }
     }
 
@@ -85,8 +92,8 @@ async def send_welcome_email(to_email: str, name: str):
                 logger.info(f"Welcome email sent successfully to {to_email}")
                 return True
             else:
-                logger.error(f"Failed to send email via EmailJS: {response.text}")
+                logger.error(f"EmailJS API Error (Status {response.status_code}): {response.text}")
                 return False
     except Exception as e:
-        logger.error(f"Error sending welcome email: {str(e)}")
+        logger.error(f"Exception during email send: {str(e)}")
         return False
